@@ -2,7 +2,7 @@ use async_trait::async_trait;
 
 use crate::internal::{
     interfaces::recon_tasks_repository::ReconTaskDetailsRepositoryInterface,
-    models::entities::{
+    shared_reconciler_rust_libraries::models::entities::{
         app_errors::{AppError, AppErrorKind},
         recon_tasks_models::{ReconTaskDetails, ReconciliationConfigs},
     },

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::internal::models::entities::recon_tasks_models::{
+use crate::internal::shared_reconciler_rust_libraries::models::entities::recon_tasks_models::{
     ComparisonPair, ReconciliationConfigs,
 };
 

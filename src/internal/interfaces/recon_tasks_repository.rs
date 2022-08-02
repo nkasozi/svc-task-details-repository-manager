@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use mockall::automock;
 
-use crate::internal::models::entities::{
+use crate::internal::shared_reconciler_rust_libraries::models::entities::{
     app_errors::AppError, recon_tasks_models::ReconTaskDetails,
 };
 

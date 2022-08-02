@@ -1,9 +1,9 @@
 use async_trait::async_trait;
 use mockall::automock;
 
-use crate::internal::models::{
-    entities::app_errors::AppError,
-    view_models::{requests::CreateReconTaskRequest, responses::ReconTaskResponseDetails},
+use crate::internal::{
+    models::view_models::{requests::CreateReconTaskRequest, responses::ReconTaskResponseDetails},
+    shared_reconciler_rust_libraries::models::entities::app_errors::AppError,
 };
 
 #[automock]

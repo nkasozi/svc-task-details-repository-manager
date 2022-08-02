@@ -8,12 +8,10 @@ use crate::internal::{
         recon_tasks_aggregator::ReconTaskAggregationServiceInterface,
         recon_tasks_repository::ReconTaskDetailsRepositoryInterface,
     },
-    models::{
-        entities::{
-            app_errors::{AppError, AppErrorKind},
-            recon_tasks_models::{ReconFileMetaData, ReconFileType, ReconTaskDetails},
-        },
-        view_models::{requests::CreateReconTaskRequest, responses::ReconTaskResponseDetails},
+    models::view_models::{requests::CreateReconTaskRequest, responses::ReconTaskResponseDetails},
+    shared_reconciler_rust_libraries::models::entities::{
+        app_errors::{AppError, AppErrorKind},
+        recon_tasks_models::{ReconFileMetaData, ReconFileType, ReconTaskDetails},
     },
 };
 
@@ -88,8 +86,25 @@ impl ReconTaskAggregationServiceInterface for ReconTaskAggregationService {
             .get_task_details(task_id)
             .await?;
 
+        //fetch src file from repository
+        let src_file_metadata = self
+            .recon_file_details_repo
+            .get_recon_file_details(&task_details.source_file_id.clone())
+            .await?;
+
+        //fetch cmp file from repository
+        let cmp_file_metadata = self
+            .recon_file_details_repo
+            .get_recon_file_details(&task_details.comparison_file_id.clone())
+            .await?;
+
         //convert details to view model
-        let task_details_response: ReconTaskResponseDetails = task_details.into();
+        let task_details_response: ReconTaskResponseDetails =
+            ReconTaskAggregationService::build_recon_task_details_response(
+                task_details,
+                src_file_metadata,
+                cmp_file_metadata,
+            );
 
         //return success
         return Ok(task_details_response);
@@ -97,6 +112,19 @@ impl ReconTaskAggregationServiceInterface for ReconTaskAggregationService {
 }
 
 impl ReconTaskAggregationService {
+    fn build_recon_task_details_response(
+        task_details: ReconTaskDetails,
+        source_file_metadata: ReconFileMetaData,
+        comparison_file_metadata: ReconFileMetaData,
+    ) -> ReconTaskResponseDetails {
+        return ReconTaskResponseDetails {
+            task_id: task_details.id.clone(),
+            task_details,
+            source_file_metadata,
+            comparison_file_metadata,
+        };
+    }
+
     fn get_src_file_details(request: &CreateReconTaskRequest) -> ReconFileMetaData {
         return ReconFileMetaData {
             id: ReconTaskAggregationService::generate_uuid(RECON_FILE_STORE_PREFIX),
@@ -152,7 +180,9 @@ mod tests {
             recon_files_repository::MockReconFileDetailsRepositoryInterface,
             recon_tasks_repository::MockReconTaskDetailsRepositoryInterface,
         },
-        models::entities::recon_tasks_models::{ComparisonPair, ReconciliationConfigs},
+        shared_reconciler_rust_libraries::models::entities::recon_tasks_models::{
+            ComparisonPair, ReconciliationConfigs,
+        },
     };
 
     use super::*;
@@ -197,6 +227,20 @@ mod tests {
             .expect_create_recon_file_details()
             .returning(|_y| Ok(String::from("file-1234")));
 
+        mock_recon_file_details_repo
+            .expect_get_recon_file_details()
+            .returning(|_y| {
+                Ok(ReconFileMetaData {
+                    id: String::from("src-file-1234"),
+                    file_name: String::from("src-file-1234"),
+                    row_count: 1000,
+                    column_delimiters: vec![],
+                    recon_file_type: ReconFileType::SourceReconFile,
+                    column_headers: vec![String::from("header1"), String::from("header2")],
+                    file_hash: String::from("src-file-1234"),
+                })
+            });
+
         let service = ReconTaskAggregationService {
             recon_task_details_repo: mock_recon_task_details_repo,
             recon_file_details_repo: mock_recon_file_details_repo,
@@ -227,18 +271,14 @@ mod tests {
             comparison_file_delimiters: vec![String::from(",")],
         };
 
-        let expected = ReconTaskResponseDetails {
-            task_id: String::from("task-1234"),
-            is_done: false,
-            has_begun: false,
-        };
+        let expected = String::from("task-1234");
 
         //act
         let result = service.create_recon_task(&test_request).await;
 
         //assert
         assert!(result.is_ok());
-        assert_eq!(result.ok(), Some(expected))
+        assert_eq!(result.ok().unwrap().task_id, expected);
     }
 
     #[actix_web::test]

@@ -11,11 +11,9 @@ use crate::{
     },
     internal::{
         interfaces::recon_tasks_aggregator::ReconTaskAggregationServiceInterface,
-        models::{
-            entities::app_errors::AppErrorKind,
-            view_models::requests::{CreateReconTaskRequest, GetTaskDetailsRequest},
-        },
+        models::view_models::requests::{CreateReconTaskRequest, GetTaskDetailsRequest},
         services::recon_tasks_aggregator::ReconTaskAggregationService,
+        shared_reconciler_rust_libraries::models::entities::app_errors::AppErrorKind,
     },
 };
 
@@ -107,6 +105,9 @@ mod tests {
     use crate::internal::{
         interfaces::recon_tasks_aggregator::MockReconTaskAggregationServiceInterface,
         models::view_models::responses::ReconTaskResponseDetails,
+        shared_reconciler_rust_libraries::models::entities::recon_tasks_models::{
+            ReconFileMetaData, ReconFileType, ReconTaskDetails, ReconciliationConfigs,
+        },
     };
 
     use super::*;
@@ -123,8 +124,38 @@ mod tests {
                 .returning(|_y| {
                     Ok(ReconTaskResponseDetails {
                         task_id: String::from("task-1234"),
-                        is_done: false,
-                        has_begun: false,
+                        task_details: ReconTaskDetails {
+                            id: String::from("task-1234"),
+                            source_file_id: String::from("src-file-1234"),
+                            comparison_file_id: String::from("cmp-file-1234"),
+                            is_done: false,
+                            has_begun: true,
+                            comparison_pairs: vec![],
+                            recon_config: ReconciliationConfigs {
+                                should_check_for_duplicate_records_in_comparison_file: true,
+                                should_reconciliation_be_case_sensitive: true,
+                                should_ignore_white_space: true,
+                                should_do_reverse_reconciliation: true,
+                            },
+                        },
+                        source_file_metadata: ReconFileMetaData {
+                            id: String::from("src-file-1234"),
+                            file_name: String::from("src-file-1234"),
+                            row_count: 1000,
+                            column_delimiters: vec![],
+                            recon_file_type: ReconFileType::SourceReconFile,
+                            column_headers: vec![],
+                            file_hash: String::from("src-file-1234"),
+                        },
+                        comparison_file_metadata: ReconFileMetaData {
+                            id: String::from("cmp-file-1234"),
+                            file_name: String::from("cmp-file-1234"),
+                            row_count: 1000,
+                            column_delimiters: vec![],
+                            recon_file_type: ReconFileType::ComparisonReconFile,
+                            column_headers: vec![],
+                            file_hash: String::from("cmp-file-1234"),
+                        },
                     })
                 });
 
