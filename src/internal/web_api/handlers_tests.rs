@@ -106,7 +106,7 @@ async fn test_upload_file_chunk_when_service_returns_error_returns_internal_erro
         .send_request(&mut app)
         .await;
 
-    assert!(resp.status().is_client_error());
+    assert!(resp.status().is_server_error());
 }
 
 fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {

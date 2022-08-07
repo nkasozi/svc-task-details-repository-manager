@@ -21,6 +21,7 @@ async fn get_task_details(
         Ok(details) => HttpResponse::Ok().json(details),
         Err(err) => match err.kind {
             AppErrorKind::NotFound => HttpResponse::NotFound().json(format!("{}", err)),
+            AppErrorKind::BadClientRequest => HttpResponse::BadRequest().json(format!("{}", err)),
             _ => HttpResponse::InternalServerError().json(format!("{}", err)),
         },
     };
