@@ -14,6 +14,9 @@ use crate::internal::{
 
 const RECON_FILE_STORE_PREFIX: &'static str = "RECON-FILE";
 const RECON_TASKS_STORE_PREFIX: &'static str = "RECON-TASK";
+const PRIMARY_FILE_QUEUE_PREFIX: &'static str = "PRIMARY-FILE-QUEUE";
+const COMPARISON_FILE_QUEUE_PREFIX: &'static str = "COMPARISON-FILE-QUEUE";
+const RECON_RESULTS_QUEUE_PREFIX: &'static str = "RECON-RESULTS-QUEUE";
 
 pub struct Transformer {}
 
@@ -27,16 +30,12 @@ impl TransformerInterface for Transformer {
         return ReconTaskResponseDetails {
             task_id: task_details.id.clone(),
             task_details,
-            primary_file_metadata: primary_file_metadata,
+            primary_file_metadata,
             comparison_file_metadata,
-            results_queue_info: FileChunkQueue {
-                topic_id: String::from("test-topic"),
-                last_acknowledged_id: Option::None,
-            },
         };
     }
 
-    fn get_src_file_details(&self, request: &CreateReconTaskRequest) -> ReconFileMetaData {
+    fn get_primary_file_details(&self, request: &CreateReconTaskRequest) -> ReconFileMetaData {
         return ReconFileMetaData {
             id: self.generate_uuid(RECON_FILE_STORE_PREFIX),
             file_name: request.primary_file_name.clone(),
@@ -45,10 +44,7 @@ impl TransformerInterface for Transformer {
             file_hash: request.primary_file_hash.clone(),
             column_delimiters: request.primary_file_delimiters.clone(),
             column_headers: request.primary_file_headers.clone(),
-            queue_info: FileChunkQueue {
-                topic_id: String::from("test-topic"),
-                last_acknowledged_id: Option::None,
-            },
+            queue_info: self.generate_queue_topic(PRIMARY_FILE_QUEUE_PREFIX),
         };
     }
 
@@ -61,10 +57,7 @@ impl TransformerInterface for Transformer {
             file_hash: request.comparison_file_hash.clone(),
             column_delimiters: request.comparison_file_delimiters.clone(),
             column_headers: request.comparison_file_headers.clone(),
-            queue_info: FileChunkQueue {
-                topic_id: String::from("test-topic"),
-                last_acknowledged_id: Option::None,
-            },
+            queue_info: self.generate_queue_topic(COMPARISON_FILE_QUEUE_PREFIX),
         };
     }
 
@@ -82,6 +75,7 @@ impl TransformerInterface for Transformer {
             has_begun: true,
             comparison_pairs: request.comparison_pairs.clone(),
             recon_config: request.recon_configurations.clone(),
+            recon_results_queue_info: self.generate_queue_topic(RECON_RESULTS_QUEUE_PREFIX),
         };
     }
 }
@@ -91,5 +85,13 @@ impl Transformer {
         let id = Uuid::new_v4().to_string();
         let full_id = String::from(format!("{}-{}", prefix, id));
         return full_id;
+    }
+
+    fn generate_queue_topic(&self, prefix: &str) -> FileChunkQueue {
+        let uuid = self.generate_uuid(prefix);
+        FileChunkQueue {
+            topic_id: uuid,
+            last_acknowledged_id: Option::None,
+        }
     }
 }

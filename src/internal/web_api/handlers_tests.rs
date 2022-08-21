@@ -130,6 +130,10 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
                 should_ignore_white_space: true,
                 should_do_reverse_reconciliation: true,
             },
+            recon_results_queue_info: FileChunkQueue {
+                topic_id: String::from("test-topic"),
+                last_acknowledged_id: Option::None,
+            },
         },
         primary_file_metadata: ReconFileMetaData {
             id: String::from("src-file-1234"),
@@ -156,10 +160,6 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
                 topic_id: String::from("test-topic"),
                 last_acknowledged_id: Option::None,
             },
-        },
-        results_queue_info: FileChunkQueue {
-            topic_id: String::from("test-topic"),
-            last_acknowledged_id: Option::None,
         },
     }
 }

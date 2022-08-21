@@ -1,10 +1,12 @@
 use async_trait::async_trait;
+use dapr::{dapr::dapr::proto::runtime::v1::dapr_client::DaprClient, Client};
+use tonic::transport::Channel as TonicChannel;
 
 use crate::internal::{
     interfaces::recon_tasks_repository::ReconTaskDetailsRepositoryInterface,
     shared_reconciler_rust_libraries::models::entities::{
         app_errors::{AppError, AppErrorKind},
-        recon_tasks_models::{ReconTaskDetails, ReconciliationConfigs},
+        recon_tasks_models::ReconTaskDetails,
     },
 };
 
@@ -17,16 +19,7 @@ pub struct ReconTaskDetailsRepositoryManager {
 impl ReconTaskDetailsRepositoryInterface for ReconTaskDetailsRepositoryManager {
     async fn get_task_details(&self, task_details: &String) -> Result<ReconTaskDetails, AppError> {
         // Create the client
-        let connection_url = self.connection_url.clone();
-        let client_connect_result =
-            dapr::Client::<dapr::client::TonicClient>::connect(connection_url).await;
-
-        let mut client;
-
-        match client_connect_result {
-            Ok(s) => client = s,
-            Err(e) => return Err(AppError::new(AppErrorKind::ConnectionError, e.to_string())),
-        }
+        let mut client = self.get_dapr_connection().await?;
 
         let get_response = client
             .get_state(self.store_name.clone(), String::from(task_details), None)
@@ -49,16 +42,7 @@ impl ReconTaskDetailsRepositoryInterface for ReconTaskDetailsRepositoryManager {
         task_details: &ReconTaskDetails,
     ) -> Result<String, AppError> {
         // Create the client
-        let connection_url = self.connection_url.clone();
-        let client_connect_result =
-            dapr::Client::<dapr::client::TonicClient>::connect(connection_url).await;
-
-        let mut client;
-
-        match client_connect_result {
-            Ok(s) => client = s,
-            Err(e) => return Err(AppError::new(AppErrorKind::ConnectionError, e.to_string())),
-        }
+        let mut client = self.get_dapr_connection().await?;
 
         let key = task_details.id.clone();
         let val = serde_json::to_vec(&task_details).unwrap();
@@ -76,36 +60,21 @@ impl ReconTaskDetailsRepositoryInterface for ReconTaskDetailsRepositoryManager {
 
     async fn update_task_details(
         &self,
-        _task_details: &ReconTaskDetails,
+        task_details: &ReconTaskDetails,
     ) -> Result<ReconTaskDetails, AppError> {
-        return Ok(ReconTaskDetails {
-            comparison_file_id: String::from("1234"),
-            has_begun: false,
-            id: String::from("1234"),
-            is_done: false,
-            primary_file_id: String::from("1234"),
-            comparison_pairs: vec![],
-            recon_config: ReconciliationConfigs {
-                should_check_for_duplicate_records_in_comparison_file: true,
-                should_reconciliation_be_case_sensitive: true,
-                should_ignore_white_space: true,
-                should_do_reverse_reconciliation: true,
-            },
-        });
+        //delete existing task task_details
+        _ = self.delete_task_details(&task_details.id);
+
+        //save new details
+        let id = self.create_task_details(task_details).await?;
+
+        //return task details
+        return self.get_task_details(&id).await;
     }
 
     async fn delete_task_details(&self, task_details_id: &String) -> Result<bool, AppError> {
         // Create the client
-        let connection_url = self.connection_url.clone();
-        let client_connect_result =
-            dapr::Client::<dapr::client::TonicClient>::connect(connection_url).await;
-
-        let mut client;
-
-        match client_connect_result {
-            Ok(s) => client = s,
-            Err(e) => return Err(AppError::new(AppErrorKind::ConnectionError, e.to_string())),
-        }
+        let mut client = self.get_dapr_connection().await?;
 
         // delete a value from the state store
         let delete_result = client
@@ -115,6 +84,25 @@ impl ReconTaskDetailsRepositoryInterface for ReconTaskDetailsRepositoryManager {
         match delete_result {
             Ok(_s) => return Ok(true),
             Err(e) => return Err(AppError::new(AppErrorKind::InternalError, e.to_string())),
+        }
+    }
+}
+
+impl ReconTaskDetailsRepositoryManager {
+    async fn get_dapr_connection(&self) -> Result<Client<DaprClient<TonicChannel>>, AppError> {
+        // Create the client
+        let dapr_grpc_server_address = self.connection_url.clone();
+
+        //connect to dapr
+        let client_connect_result =
+            dapr::Client::<dapr::client::TonicClient>::connect(dapr_grpc_server_address).await;
+
+        //handle the connection result
+        match client_connect_result {
+            //connection succeeded
+            Ok(s) => return Ok(s),
+            //connection failed
+            Err(e) => return Err(AppError::new(AppErrorKind::ConnectionError, e.to_string())),
         }
     }
 }

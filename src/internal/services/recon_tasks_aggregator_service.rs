@@ -38,7 +38,7 @@ impl ReconTaskAggregationServiceInterface for ReconTaskAggregationService {
             }
         }
         //save primary file task_details
-        let src_file_details = self.transformer.get_src_file_details(&request);
+        let src_file_details = self.transformer.get_primary_file_details(&request);
 
         let src_file_id = self
             .recon_file_details_repo

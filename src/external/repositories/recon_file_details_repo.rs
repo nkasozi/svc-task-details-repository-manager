@@ -1,4 +1,6 @@
 use async_trait::async_trait;
+use dapr::{dapr::dapr::proto::runtime::v1::dapr_client::DaprClient, Client};
+use tonic::transport::Channel as TonicChannel;
 
 use crate::internal::{
     interfaces::recon_files_repository::ReconFileDetailsRepositoryInterface,
@@ -15,34 +17,15 @@ pub struct ReconFileDetailsRepositoryManager {
 
 #[async_trait]
 impl ReconFileDetailsRepositoryInterface for ReconFileDetailsRepositoryManager {
-    fn get_connection_string(&self) -> String {
-        self.connection_url.to_owned()
-    }
-
-    fn get_store_name(&self) -> String {
-        self.store_name.to_owned()
-    }
-
     async fn get_recon_file_details(
         &self,
         file_id: &String,
     ) -> Result<ReconFileMetaData, AppError> {
         // Create the client
-        let connection_url = self.connection_url.clone();
-        let store_name = self.store_name.clone();
-
-        let client_connect_result =
-            dapr::Client::<dapr::client::TonicClient>::connect(connection_url).await;
-
-        let mut client;
-
-        match client_connect_result {
-            Ok(s) => client = s,
-            Err(e) => return Err(AppError::new(AppErrorKind::ConnectionError, e.to_string())),
-        }
+        let mut client = self.get_dapr_connection().await?;
 
         let get_response = client
-            .get_state(store_name, String::from(file_id), None)
+            .get_state(self.store_name.clone(), String::from(file_id), None)
             .await;
 
         match get_response {
@@ -63,25 +46,14 @@ impl ReconFileDetailsRepositoryInterface for ReconFileDetailsRepositoryManager {
         file_details: &ReconFileMetaData,
     ) -> Result<String, AppError> {
         // Create the client
-        let connection_url = self.connection_url.clone();
-        let store_name = self.store_name.clone();
-
-        let client_connect_result =
-            dapr::Client::<dapr::client::TonicClient>::connect(connection_url).await;
-
-        let mut client;
-
-        match client_connect_result {
-            Ok(s) => client = s,
-            Err(e) => return Err(AppError::new(AppErrorKind::ConnectionError, e.to_string())),
-        }
+        let mut client = self.get_dapr_connection().await?;
 
         let key = file_details.id.clone();
         let val = serde_json::to_vec(&file_details).unwrap();
 
         // save key-value pair in the state store
         let save_result = client
-            .save_state(store_name, vec![(key.clone(), val)])
+            .save_state(self.store_name.clone(), vec![(key.clone(), val)])
             .await;
 
         match save_result {
@@ -92,33 +64,49 @@ impl ReconFileDetailsRepositoryInterface for ReconFileDetailsRepositoryManager {
 
     async fn update_recon_file_details(
         &self,
-        _file_details: &ReconFileMetaData,
+        file_details: &ReconFileMetaData,
     ) -> Result<ReconFileMetaData, AppError> {
-        unimplemented!();
+        //delete existing task task_details
+        _ = self.delete_recon_file_details(&file_details.id);
+
+        //save new details
+        let id = self.create_recon_file_details(file_details).await?;
+
+        //return task details
+        return self.get_recon_file_details(&id).await;
     }
 
     async fn delete_recon_file_details(&self, file_id: &String) -> Result<bool, AppError> {
         // Create the client
-        let connection_url = self.connection_url.clone();
-        let store_name = self.store_name.clone();
-        let client_connect_result =
-            dapr::Client::<dapr::client::TonicClient>::connect(connection_url).await;
-
-        let mut client;
-
-        match client_connect_result {
-            Ok(s) => client = s,
-            Err(e) => return Err(AppError::new(AppErrorKind::ConnectionError, e.to_string())),
-        }
+        let mut client = self.get_dapr_connection().await?;
 
         // delete a value from the state store
         let delete_result = client
-            .delete_state(store_name, String::from(file_id), None)
+            .delete_state(self.store_name.clone(), String::from(file_id), None)
             .await;
 
         match delete_result {
             Ok(_s) => return Ok(true),
             Err(e) => return Err(AppError::new(AppErrorKind::InternalError, e.to_string())),
+        }
+    }
+}
+
+impl ReconFileDetailsRepositoryManager {
+    async fn get_dapr_connection(&self) -> Result<Client<DaprClient<TonicChannel>>, AppError> {
+        // Create the client
+        let dapr_grpc_server_address = self.connection_url.clone();
+
+        //connect to dapr
+        let client_connect_result =
+            dapr::Client::<dapr::client::TonicClient>::connect(dapr_grpc_server_address).await;
+
+        //handle the connection result
+        match client_connect_result {
+            //connection succeeded
+            Ok(s) => return Ok(s),
+            //connection failed
+            Err(e) => return Err(AppError::new(AppErrorKind::ConnectionError, e.to_string())),
         }
     }
 }

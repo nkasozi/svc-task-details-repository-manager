@@ -8,8 +8,6 @@ use crate::internal::shared_reconciler_rust_libraries::models::entities::{
 #[automock]
 #[async_trait]
 pub trait ReconFileDetailsRepositoryInterface: Send + Sync {
-    fn get_connection_string(&self) -> String;
-    fn get_store_name(&self) -> String;
     async fn get_recon_file_details(&self, file_id: &String)
         -> Result<ReconFileMetaData, AppError>;
     async fn create_recon_file_details(

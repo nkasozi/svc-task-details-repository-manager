@@ -131,7 +131,7 @@ fn setup_dependencies() -> (
         .returning(|_| get_dummy_recon_file_metadata());
 
     mock_transformer
-        .expect_get_src_file_details()
+        .expect_get_primary_file_details()
         .returning(|_| get_dummy_recon_file_metadata());
 
     mock_transformer
@@ -206,6 +206,10 @@ fn get_dummy_recon_task_details() -> ReconTaskDetails {
             should_ignore_white_space: true,
             should_do_reverse_reconciliation: true,
         },
+        recon_results_queue_info: FileChunkQueue {
+            topic_id: String::from("test-topic"),
+            last_acknowledged_id: Option::None,
+        },
     }
 }
 
@@ -220,6 +224,10 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
             has_begun: true,
             comparison_pairs: vec![new_same_column_index_comparison_pair(0)],
             recon_config: default_recon_configs(),
+            recon_results_queue_info: FileChunkQueue {
+                topic_id: String::from("test-topic"),
+                last_acknowledged_id: Option::None,
+            },
         },
         primary_file_metadata: ReconFileMetaData {
             id: String::from("src-file-1234"),
@@ -246,10 +254,6 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
                 topic_id: String::from("test-topic"),
                 last_acknowledged_id: Option::None,
             },
-        },
-        results_queue_info: FileChunkQueue {
-            topic_id: String::from("test-topic"),
-            last_acknowledged_id: Option::None,
         },
     }
 }
