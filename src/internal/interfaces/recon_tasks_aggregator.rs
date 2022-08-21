@@ -2,8 +2,11 @@ use async_trait::async_trait;
 use mockall::automock;
 
 use crate::internal::{
-    models::view_models::{requests::CreateReconTaskRequest, responses::ReconTaskResponseDetails},
-    shared_reconciler_rust_libraries::models::entities::app_errors::AppError,
+    models::view_models::requests::CreateReconTaskRequest,
+    shared_reconciler_rust_libraries::models::{
+        entities::app_errors::AppError,
+        view_models::recon_task_response_details::ReconTaskResponseDetails,
+    },
 };
 
 #[automock]

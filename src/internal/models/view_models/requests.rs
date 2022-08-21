@@ -15,20 +15,20 @@ pub struct CreateReconTaskRequest {
     #[validate(length(min = 1, message = "please supply a user_id"))]
     pub user_id: String,
 
-    #[validate(length(min = 1, message = "please supply a source_file_name"))]
-    pub source_file_name: String,
+    #[validate(length(min = 1, message = "please supply a primary_file_name"))]
+    pub primary_file_name: String,
 
-    #[validate(length(min = 1, message = "please supply a source_file_hash"))]
-    pub source_file_hash: String,
+    #[validate(length(min = 1, message = "please supply a primary_file_hash"))]
+    pub primary_file_hash: String,
 
-    #[validate(range(min = 1, message = "please supply a source_file_row_count"))]
-    pub source_file_row_count: u64,
+    #[validate(range(min = 1, message = "please supply a primary_file_row_count"))]
+    pub primary_file_row_count: u64,
 
-    #[validate(length(min = 1, message = "please supply the source_file_headers"))]
-    pub source_file_headers: Vec<String>,
+    #[validate(length(min = 1, message = "please supply the primary_file_headers"))]
+    pub primary_file_headers: Vec<String>,
 
-    #[validate(length(min = 1, message = "please supply the source_file_delimiters"))]
-    pub source_file_delimiters: Vec<String>,
+    #[validate(length(min = 1, message = "please supply the primary_file_delimiters"))]
+    pub primary_file_delimiters: Vec<String>,
 
     #[validate(length(min = 1, message = "please supply a comparison_file_name"))]
     pub comparison_file_name: String,

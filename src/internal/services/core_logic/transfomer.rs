@@ -2,9 +2,13 @@ use uuid::Uuid;
 
 use crate::internal::{
     interfaces::transformer::TransformerInterface,
-    models::view_models::{requests::CreateReconTaskRequest, responses::ReconTaskResponseDetails},
-    shared_reconciler_rust_libraries::models::entities::recon_tasks_models::{
-        ReconFileMetaData, ReconFileType, ReconTaskDetails,
+    models::view_models::requests::CreateReconTaskRequest,
+    shared_reconciler_rust_libraries::models::{
+        entities::{
+            file_chunk_queue::FileChunkQueue,
+            recon_tasks_models::{ReconFileMetaData, ReconFileType, ReconTaskDetails},
+        },
+        view_models::recon_task_response_details::ReconTaskResponseDetails,
     },
 };
 
@@ -17,26 +21,34 @@ impl TransformerInterface for Transformer {
     fn build_recon_task_details_response(
         &self,
         task_details: ReconTaskDetails,
-        source_file_metadata: ReconFileMetaData,
+        primary_file_metadata: ReconFileMetaData,
         comparison_file_metadata: ReconFileMetaData,
     ) -> ReconTaskResponseDetails {
         return ReconTaskResponseDetails {
             task_id: task_details.id.clone(),
             task_details,
-            source_file_metadata,
+            primary_file_metadata: primary_file_metadata,
             comparison_file_metadata,
+            results_queue_info: FileChunkQueue {
+                topic_id: String::from("test-topic"),
+                last_acknowledged_id: Option::None,
+            },
         };
     }
 
     fn get_src_file_details(&self, request: &CreateReconTaskRequest) -> ReconFileMetaData {
         return ReconFileMetaData {
             id: self.generate_uuid(RECON_FILE_STORE_PREFIX),
-            file_name: request.source_file_name.clone(),
-            row_count: request.source_file_row_count,
+            file_name: request.primary_file_name.clone(),
+            row_count: request.primary_file_row_count,
             recon_file_type: ReconFileType::SourceReconFile,
-            file_hash: request.source_file_hash.clone(),
-            column_delimiters: request.source_file_delimiters.clone(),
-            column_headers: request.source_file_headers.clone(),
+            file_hash: request.primary_file_hash.clone(),
+            column_delimiters: request.primary_file_delimiters.clone(),
+            column_headers: request.primary_file_headers.clone(),
+            queue_info: FileChunkQueue {
+                topic_id: String::from("test-topic"),
+                last_acknowledged_id: Option::None,
+            },
         };
     }
 
@@ -49,6 +61,10 @@ impl TransformerInterface for Transformer {
             file_hash: request.comparison_file_hash.clone(),
             column_delimiters: request.comparison_file_delimiters.clone(),
             column_headers: request.comparison_file_headers.clone(),
+            queue_info: FileChunkQueue {
+                topic_id: String::from("test-topic"),
+                last_acknowledged_id: Option::None,
+            },
         };
     }
 
@@ -60,7 +76,7 @@ impl TransformerInterface for Transformer {
     ) -> ReconTaskDetails {
         return ReconTaskDetails {
             id: self.generate_uuid(RECON_TASKS_STORE_PREFIX),
-            source_file_id: String::from(src_file_id),
+            primary_file_id: String::from(src_file_id),
             comparison_file_id: String::from(cmp_file_id),
             is_done: false,
             has_begun: true,

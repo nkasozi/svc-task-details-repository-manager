@@ -8,8 +8,11 @@ use crate::internal::{
         recon_tasks_repository::ReconTaskDetailsRepositoryInterface,
         transformer::TransformerInterface,
     },
-    models::view_models::{requests::CreateReconTaskRequest, responses::ReconTaskResponseDetails},
-    shared_reconciler_rust_libraries::models::entities::app_errors::{AppError, AppErrorKind},
+    models::view_models::requests::CreateReconTaskRequest,
+    shared_reconciler_rust_libraries::models::{
+        entities::app_errors::{AppError, AppErrorKind},
+        view_models::recon_task_response_details::ReconTaskResponseDetails,
+    },
 };
 
 pub struct ReconTaskAggregationService {
@@ -82,7 +85,7 @@ impl ReconTaskAggregationServiceInterface for ReconTaskAggregationService {
         //fetch src file from repository
         let src_file_metadata = self
             .recon_file_details_repo
-            .get_recon_file_details(&task_details.source_file_id.clone())
+            .get_recon_file_details(&&task_details.primary_file_id.clone())
             .await?;
 
         //fetch cmp file from repository

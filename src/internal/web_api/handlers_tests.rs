@@ -7,10 +7,15 @@ use actix_web::{
 use crate::internal::{
     interfaces::recon_tasks_aggregator::MockReconTaskAggregationServiceInterface,
     interfaces::recon_tasks_aggregator::ReconTaskAggregationServiceInterface,
-    models::view_models::responses::ReconTaskResponseDetails,
-    shared_reconciler_rust_libraries::models::entities::app_errors::{AppError, AppErrorKind},
-    shared_reconciler_rust_libraries::models::entities::recon_tasks_models::{
-        ReconFileMetaData, ReconFileType, ReconTaskDetails, ReconciliationConfigs,
+    shared_reconciler_rust_libraries::models::entities::{
+        app_errors::{AppError, AppErrorKind},
+        file_chunk_queue::FileChunkQueue,
+    },
+    shared_reconciler_rust_libraries::models::{
+        entities::recon_tasks_models::{
+            ReconFileMetaData, ReconFileType, ReconTaskDetails, ReconciliationConfigs,
+        },
+        view_models::recon_task_response_details::ReconTaskResponseDetails,
     },
     web_api::handlers::get_task_details,
 };
@@ -114,7 +119,7 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
         task_id: String::from("task-1234"),
         task_details: ReconTaskDetails {
             id: String::from("task-1234"),
-            source_file_id: String::from("src-file-1234"),
+            primary_file_id: String::from("src-file-1234"),
             comparison_file_id: String::from("cmp-file-1234"),
             is_done: false,
             has_begun: true,
@@ -126,7 +131,7 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
                 should_do_reverse_reconciliation: true,
             },
         },
-        source_file_metadata: ReconFileMetaData {
+        primary_file_metadata: ReconFileMetaData {
             id: String::from("src-file-1234"),
             file_name: String::from("src-file-1234"),
             row_count: 1000,
@@ -134,6 +139,10 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
             recon_file_type: ReconFileType::SourceReconFile,
             column_headers: vec![],
             file_hash: String::from("src-file-1234"),
+            queue_info: FileChunkQueue {
+                topic_id: String::from("test-topic"),
+                last_acknowledged_id: Option::None,
+            },
         },
         comparison_file_metadata: ReconFileMetaData {
             id: String::from("cmp-file-1234"),
@@ -143,6 +152,14 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
             recon_file_type: ReconFileType::ComparisonReconFile,
             column_headers: vec![],
             file_hash: String::from("cmp-file-1234"),
+            queue_info: FileChunkQueue {
+                topic_id: String::from("test-topic"),
+                last_acknowledged_id: Option::None,
+            },
+        },
+        results_queue_info: FileChunkQueue {
+            topic_id: String::from("test-topic"),
+            last_acknowledged_id: Option::None,
         },
     }
 }

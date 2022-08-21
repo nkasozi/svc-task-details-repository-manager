@@ -83,7 +83,7 @@ impl ReconTaskDetailsRepositoryInterface for ReconTaskDetailsRepositoryManager {
             has_begun: false,
             id: String::from("1234"),
             is_done: false,
-            source_file_id: String::from("1234"),
+            primary_file_id: String::from("1234"),
             comparison_pairs: vec![],
             recon_config: ReconciliationConfigs {
                 should_check_for_duplicate_records_in_comparison_file: true,
