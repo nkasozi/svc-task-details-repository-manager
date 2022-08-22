@@ -161,8 +161,8 @@ fn get_dummy_create_recon_task() -> CreateReconTaskRequest {
             should_do_reverse_reconciliation: false,
         },
         comparison_pairs: vec![ComparisonPair {
-            source_column_index: 0,
-            comparison_column_index: 0,
+            primary_file_column_index: 0,
+            comparison_file_column_index: 0,
             is_row_identifier: true,
         }],
         primary_file_headers: vec![String::from("src-file-header-1")],
@@ -178,7 +178,7 @@ fn get_dummy_recon_file_metadata() -> ReconFileMetaData {
         file_name: String::from("src-file-1234"),
         row_count: 1000,
         column_delimiters: vec![],
-        recon_file_type: ReconFileType::SourceReconFile,
+        recon_file_type: ReconFileType::PrimaryFile,
         column_headers: vec![String::from("header1"), String::from("header2")],
         file_hash: String::from("src-file-1234"),
         queue_info: FileChunkQueue {
@@ -196,8 +196,8 @@ fn get_dummy_recon_task_details() -> ReconTaskDetails {
         is_done: false,
         has_begun: false,
         comparison_pairs: vec![ComparisonPair {
-            source_column_index: 0,
-            comparison_column_index: 0,
+            primary_file_column_index: 0,
+            comparison_file_column_index: 0,
             is_row_identifier: true,
         }],
         recon_config: ReconciliationConfigs {
@@ -234,7 +234,7 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
             file_name: String::from("src-file-1234"),
             row_count: 1000,
             column_delimiters: vec![],
-            recon_file_type: ReconFileType::SourceReconFile,
+            recon_file_type: ReconFileType::PrimaryFile,
             column_headers: vec![String::from("header1"), String::from("header2")],
             file_hash: String::from("src-file-1234"),
             queue_info: FileChunkQueue {
@@ -247,7 +247,7 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
             file_name: String::from("cmp-file-1234"),
             row_count: 1000,
             column_delimiters: vec![String::from(",")],
-            recon_file_type: ReconFileType::ComparisonReconFile,
+            recon_file_type: ReconFileType::ComparisonFile,
             column_headers: vec![String::from("header1"), String::from("header2")],
             file_hash: String::from("cmp-file-1234"),
             queue_info: FileChunkQueue {
@@ -269,8 +269,8 @@ fn default_recon_configs() -> ReconciliationConfigs {
 
 fn new_same_column_index_comparison_pair(column_index: usize) -> ComparisonPair {
     ComparisonPair {
-        source_column_index: column_index,
-        comparison_column_index: column_index,
+        primary_file_column_index: 0,
+        comparison_file_column_index: 0,
         is_row_identifier: true,
     }
 }

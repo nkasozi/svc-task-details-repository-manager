@@ -140,7 +140,7 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
             file_name: String::from("src-file-1234"),
             row_count: 1000,
             column_delimiters: vec![],
-            recon_file_type: ReconFileType::SourceReconFile,
+            recon_file_type: ReconFileType::PrimaryFile,
             column_headers: vec![],
             file_hash: String::from("src-file-1234"),
             queue_info: FileChunkQueue {
@@ -153,7 +153,7 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
             file_name: String::from("cmp-file-1234"),
             row_count: 1000,
             column_delimiters: vec![],
-            recon_file_type: ReconFileType::ComparisonReconFile,
+            recon_file_type: ReconFileType::ComparisonFile,
             column_headers: vec![],
             file_hash: String::from("cmp-file-1234"),
             queue_info: FileChunkQueue {
