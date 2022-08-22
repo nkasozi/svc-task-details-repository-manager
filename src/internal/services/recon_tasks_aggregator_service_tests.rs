@@ -269,8 +269,8 @@ fn default_recon_configs() -> ReconciliationConfigs {
 
 fn new_same_column_index_comparison_pair(column_index: usize) -> ComparisonPair {
     ComparisonPair {
-        primary_file_column_index: 0,
-        comparison_file_column_index: 0,
+        primary_file_column_index: column_index,
+        comparison_file_column_index: column_index,
         is_row_identifier: true,
     }
 }
