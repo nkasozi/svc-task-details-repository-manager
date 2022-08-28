@@ -8,10 +8,12 @@ use crate::internal::{
         recon_tasks_repository::ReconTaskDetailsRepositoryInterface,
         transformer::TransformerInterface,
     },
-    models::view_models::requests::CreateReconTaskRequest,
+    models::view_models::requests::{
+        AttachComparisonFileRequest, AttachPrimaryFileRequest, CreateReconTaskRequest,
+    },
     shared_reconciler_rust_libraries::models::{
         entities::app_errors::{AppError, AppErrorKind},
-        view_models::recon_task_response_details::ReconTaskResponseDetails,
+        view_models::recon_task_response_details::{FileResponseSummary, ReconTaskResponseDetails},
     },
 };
 
@@ -37,26 +39,9 @@ impl ReconTaskAggregationServiceInterface for ReconTaskAggregationService {
                 ));
             }
         }
-        //save primary file task_details
-        let src_file_details = self.transformer.get_primary_file_details(&request);
-
-        let src_file_id = self
-            .recon_file_details_repo
-            .create_recon_file_details(&src_file_details)
-            .await?;
-
-        //save comparison file task_details
-        let cmp_file_details = self.transformer.get_comparison_file_details(&request);
-
-        let cmp_file_id = self
-            .recon_file_details_repo
-            .create_recon_file_details(&cmp_file_details)
-            .await?;
 
         //save recon task details
-        let recon_task_details =
-            self.transformer
-                .get_recon_task_details(&src_file_id, &cmp_file_id, &request);
+        let recon_task_details = self.transformer.get_recon_task_details(&request);
 
         let task_id = self
             .recon_task_details_repo
@@ -101,5 +86,65 @@ impl ReconTaskAggregationServiceInterface for ReconTaskAggregationService {
 
         //return success
         return Ok(task_details_response);
+    }
+
+    async fn attach_primary_file_to_task(
+        &self,
+        request: &AttachPrimaryFileRequest,
+    ) -> Result<FileResponseSummary, AppError> {
+        //transform into primary file details
+        let primary_file_details = self.transformer.get_primary_file_details(&request);
+
+        //save the file details
+        let primary_file_id = self
+            .recon_file_details_repo
+            .create_recon_file_details(&primary_file_details)
+            .await?;
+
+        //retrieve saved task details
+        let recon_task_details = self.get_recon_task(&request.task_id.clone()).await?;
+        let mut recon_task = recon_task_details.task_details;
+        recon_task.primary_file_id = primary_file_id.clone();
+
+        //update the task
+        let _ = self
+            .recon_task_details_repo
+            .update_task_details(&recon_task)
+            .await?;
+
+        Ok(FileResponseSummary {
+            file_id: primary_file_id.clone(),
+            task_id: request.task_id.clone(),
+        })
+    }
+
+    async fn attach_comparison_file_to_task(
+        &self,
+        request: &AttachComparisonFileRequest,
+    ) -> Result<FileResponseSummary, AppError> {
+        //transform into primary file details
+        let comparison_file_details = self.transformer.get_comparison_file_details(&request);
+
+        //save the file details
+        let comparison_file_id = self
+            .recon_file_details_repo
+            .create_recon_file_details(&comparison_file_details)
+            .await?;
+
+        //retrieve saved task details
+        let recon_task_details = self.get_recon_task(&request.task_id.clone()).await?;
+        let mut recon_task = recon_task_details.task_details;
+        recon_task.comparison_file_id = comparison_file_id.clone();
+
+        //update the task
+        let _ = self
+            .recon_task_details_repo
+            .update_task_details(&recon_task)
+            .await?;
+
+        Ok(FileResponseSummary {
+            file_id: comparison_file_id.clone(),
+            task_id: request.task_id.clone(),
+        })
     }
 }

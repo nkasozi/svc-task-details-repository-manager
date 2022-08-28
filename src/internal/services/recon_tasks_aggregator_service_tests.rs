@@ -136,7 +136,7 @@ fn setup_dependencies() -> (
 
     mock_transformer
         .expect_get_recon_task_details()
-        .returning(|_, _, _| get_dummy_recon_task_details());
+        .returning(|_| get_dummy_recon_task_details());
 
     return (
         mock_recon_task_details_repo,
@@ -148,12 +148,6 @@ fn setup_dependencies() -> (
 fn get_dummy_create_recon_task() -> CreateReconTaskRequest {
     CreateReconTaskRequest {
         user_id: String::from("test-user-id"),
-        primary_file_name: String::from("test-src-file"),
-        primary_file_hash: String::from("test-src-file-hash"),
-        primary_file_row_count: 1000,
-        comparison_file_name: String::from("test-cmp-file"),
-        comparison_file_hash: String::from("test-src-file-hash"),
-        comparison_file_row_count: 10,
         recon_configurations: ReconciliationConfigs {
             should_check_for_duplicate_records_in_comparison_file: false,
             should_reconciliation_be_case_sensitive: true,
@@ -165,10 +159,6 @@ fn get_dummy_create_recon_task() -> CreateReconTaskRequest {
             comparison_file_column_index: 0,
             is_row_identifier: true,
         }],
-        primary_file_headers: vec![String::from("src-file-header-1")],
-        primary_file_delimiters: vec![String::from(",")],
-        comparison_file_headers: vec![String::from("cmp-file-header-1")],
-        comparison_file_delimiters: vec![String::from(",")],
     }
 }
 

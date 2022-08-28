@@ -15,6 +15,16 @@ pub struct CreateReconTaskRequest {
     #[validate(length(min = 1, message = "please supply a user_id"))]
     pub user_id: String,
 
+    pub recon_configurations: ReconciliationConfigs,
+
+    pub comparison_pairs: Vec<ComparisonPair>,
+}
+
+#[derive(Serialize, Deserialize, Validate, Debug)]
+pub struct AttachPrimaryFileRequest {
+    #[validate(length(min = 1, message = "please supply a task_id"))]
+    pub task_id: String,
+
     #[validate(length(min = 1, message = "please supply a primary_file_name"))]
     pub primary_file_name: String,
 
@@ -29,6 +39,12 @@ pub struct CreateReconTaskRequest {
 
     #[validate(length(min = 1, message = "please supply the primary_file_delimiters"))]
     pub primary_file_delimiters: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Validate, Debug)]
+pub struct AttachComparisonFileRequest {
+    #[validate(length(min = 1, message = "please supply a task_id"))]
+    pub task_id: String,
 
     #[validate(length(min = 1, message = "please supply a comparison_file_name"))]
     pub comparison_file_name: String,
@@ -44,8 +60,4 @@ pub struct CreateReconTaskRequest {
 
     #[validate(length(min = 1, message = "please supply the comparison_file_delimiters"))]
     pub comparison_file_delimiters: Vec<String>,
-
-    pub recon_configurations: ReconciliationConfigs,
-
-    pub comparison_pairs: Vec<ComparisonPair>,
 }

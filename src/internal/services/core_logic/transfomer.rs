@@ -2,7 +2,9 @@ use uuid::Uuid;
 
 use crate::internal::{
     interfaces::transformer::TransformerInterface,
-    models::view_models::requests::CreateReconTaskRequest,
+    models::view_models::requests::{
+        AttachComparisonFileRequest, AttachPrimaryFileRequest, CreateReconTaskRequest,
+    },
     shared_reconciler_rust_libraries::models::{
         entities::{
             file_chunk_queue::FileChunkQueue,
@@ -35,7 +37,7 @@ impl TransformerInterface for Transformer {
         };
     }
 
-    fn get_primary_file_details(&self, request: &CreateReconTaskRequest) -> ReconFileMetaData {
+    fn get_primary_file_details(&self, request: &AttachPrimaryFileRequest) -> ReconFileMetaData {
         return ReconFileMetaData {
             id: self.generate_uuid(RECON_FILE_STORE_PREFIX),
             file_name: request.primary_file_name.clone(),
@@ -48,7 +50,10 @@ impl TransformerInterface for Transformer {
         };
     }
 
-    fn get_comparison_file_details(&self, request: &CreateReconTaskRequest) -> ReconFileMetaData {
+    fn get_comparison_file_details(
+        &self,
+        request: &AttachComparisonFileRequest,
+    ) -> ReconFileMetaData {
         return ReconFileMetaData {
             id: self.generate_uuid(RECON_FILE_STORE_PREFIX),
             file_name: request.comparison_file_name.clone(),
@@ -61,16 +66,11 @@ impl TransformerInterface for Transformer {
         };
     }
 
-    fn get_recon_task_details(
-        &self,
-        src_file_id: &String,
-        cmp_file_id: &String,
-        request: &CreateReconTaskRequest,
-    ) -> ReconTaskDetails {
+    fn get_recon_task_details(&self, request: &CreateReconTaskRequest) -> ReconTaskDetails {
         return ReconTaskDetails {
             id: self.generate_uuid(RECON_TASKS_STORE_PREFIX),
-            primary_file_id: String::from(src_file_id),
-            comparison_file_id: String::from(cmp_file_id),
+            primary_file_id: String::from(""),
+            comparison_file_id: String::from(""),
             is_done: false,
             has_begun: true,
             comparison_pairs: request.comparison_pairs.clone(),
