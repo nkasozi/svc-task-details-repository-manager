@@ -13,7 +13,7 @@ use crate::internal::{
     shared_reconciler_rust_libraries::models::entities::app_errors::AppErrorKind,
 };
 
-#[get("/task-details/{task_id}")]
+#[get("/recon-tasks/{task_id}")]
 async fn get_task_details(
     get_task_details_request: Path<GetTaskDetailsRequest>,
     service: Data<Box<dyn ReconTaskAggregationServiceInterface>>,
@@ -46,7 +46,7 @@ async fn create_task_details(
     };
 }
 
-#[post("/recon-tasks/attach/primary-file")]
+#[post("/recon-tasks/attach-primary-file")]
 async fn attach_primary_file_to_task(
     task_details: web::Json<AttachPrimaryFileRequest>,
     service: Data<Box<dyn ReconTaskAggregationServiceInterface>>,
@@ -62,7 +62,7 @@ async fn attach_primary_file_to_task(
     };
 }
 
-#[post("/recon-tasks/attach/comparison-file")]
+#[post("/recon-tasks/attach-comparison-file")]
 async fn attach_comparison_file_to_task(
     task_details: web::Json<AttachComparisonFileRequest>,
     service: Data<Box<dyn ReconTaskAggregationServiceInterface>>,
