@@ -70,11 +70,11 @@ async fn given_that_invalid_create_recon_task_request_supplied_returns_error() {
 #[actix_web::test]
 async fn given_that_errors_occurs_when_handling_create_recon_task_request_returns_error() {
     //setup
-    let (mock_recon_task_details_repo, _, mock_transformer) = setup_dependencies();
+    let (_, mock_recon_file_details_repo, mock_transformer) = setup_dependencies();
 
-    let mut mock_recon_file_details_repo = Box::new(MockReconFileDetailsRepositoryInterface::new());
-    mock_recon_file_details_repo
-        .expect_create_recon_file_details()
+    let mut mock_recon_task_details_repo  = Box::new(MockReconTaskDetailsRepositoryInterface::new());
+    mock_recon_task_details_repo
+        .expect_create_task_details()
         .returning(|_y| {
             Err(AppError::new(
                 AppErrorKind::ConnectionError,

@@ -41,7 +41,7 @@ async fn test_get_task_details_calls_correct_dependecies_and_returns_success() {
     .await;
 
     let resp = TestRequest::get()
-        .uri(&format!("/task-details/123456"))
+        .uri(&format!("/recon-tasks/123456"))
         .send_request(&mut app)
         .await;
 
@@ -74,7 +74,7 @@ async fn test_get_task_details_when_invalid_request_returns_bad_request() {
     .await;
 
     let resp = TestRequest::get()
-        .uri(&format!("/task-details/123456"))
+        .uri(&format!("/recon-tasks/123456"))
         .send_request(&mut app)
         .await;
 
@@ -107,7 +107,7 @@ async fn test_upload_file_chunk_when_service_returns_error_returns_internal_erro
     .await;
 
     let resp = TestRequest::get()
-        .uri(&format!("/task-details/123456"))
+        .uri(&format!("/recon-tasks/123456"))
         .send_request(&mut app)
         .await;
 
