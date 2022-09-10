@@ -14,7 +14,7 @@ use crate::internal::{
 };
 
 #[get("/recon-tasks/{task_id}")]
-async fn get_task_details(
+pub(crate) async fn get_task_details(
     get_task_details_request: Path<GetTaskDetailsRequest>,
     service: Data<Box<dyn ReconTaskAggregationServiceInterface>>,
 ) -> HttpResponse {

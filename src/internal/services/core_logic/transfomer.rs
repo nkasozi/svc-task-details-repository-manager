@@ -26,8 +26,8 @@ impl TransformerInterface for Transformer {
     fn build_recon_task_details_response(
         &self,
         task_details: ReconTaskDetails,
-        primary_file_metadata: ReconFileMetaData,
-        comparison_file_metadata: ReconFileMetaData,
+        primary_file_metadata: Option<ReconFileMetaData>,
+        comparison_file_metadata: Option<ReconFileMetaData>,
     ) -> ReconTaskResponseDetails {
         return ReconTaskResponseDetails {
             task_id: task_details.id.clone(),
@@ -69,8 +69,8 @@ impl TransformerInterface for Transformer {
     fn get_recon_task_details(&self, request: &CreateReconTaskRequest) -> ReconTaskDetails {
         return ReconTaskDetails {
             id: self.generate_uuid(RECON_TASKS_STORE_PREFIX),
-            primary_file_id: String::from(""),
-            comparison_file_id: String::from(""),
+            primary_file_id: None,
+            comparison_file_id: None,
             is_done: false,
             has_begun: true,
             comparison_pairs: request.comparison_pairs.clone(),

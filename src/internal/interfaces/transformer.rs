@@ -15,8 +15,8 @@ pub trait TransformerInterface: Send + Sync {
     fn build_recon_task_details_response(
         &self,
         task_details: ReconTaskDetails,
-        primary_file_metadata: ReconFileMetaData,
-        comparison_file_metadata: ReconFileMetaData,
+        primary_file_metadata: Option<ReconFileMetaData>,
+        comparison_file_metadata: Option<ReconFileMetaData>,
     ) -> ReconTaskResponseDetails;
 
     fn get_primary_file_details(&self, request: &AttachPrimaryFileRequest) -> ReconFileMetaData;

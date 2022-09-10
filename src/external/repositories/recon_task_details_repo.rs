@@ -17,17 +17,18 @@ pub struct ReconTaskDetailsRepositoryManager {
 
 #[async_trait]
 impl ReconTaskDetailsRepositoryInterface for ReconTaskDetailsRepositoryManager {
-    async fn get_task_details(&self, task_details: &String) -> Result<ReconTaskDetails, AppError> {
+    async fn get_task_details(&self, task_id: &String) -> Result<ReconTaskDetails, AppError> {
         // Create the client
         let mut client = self.get_dapr_connection().await?;
 
         let get_response = client
-            .get_state(self.store_name.clone(), String::from(task_details), None)
+            .get_state(self.store_name.clone(), task_id.clone(), None)
             .await;
 
         match get_response {
             Ok(s) => {
                 let retrieval_result: Result<ReconTaskDetails, _> = serde_json::from_slice(&s.data);
+                //println!(format!("statestore data returned"));
                 match retrieval_result {
                     Ok(unmarshalled_task_details) => return Ok(unmarshalled_task_details),
                     Err(e) => return Err(AppError::new(AppErrorKind::NotFound, e.to_string())),
@@ -63,7 +64,7 @@ impl ReconTaskDetailsRepositoryInterface for ReconTaskDetailsRepositoryManager {
         task_details: &ReconTaskDetails,
     ) -> Result<ReconTaskDetails, AppError> {
         //delete existing task task_details
-        _ = self.delete_task_details(&task_details.id);
+        let _ = self.delete_task_details(&task_details.id);
 
         //save new details
         let id = self.create_task_details(task_details).await?;

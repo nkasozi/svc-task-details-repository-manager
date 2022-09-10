@@ -11,7 +11,10 @@ use crate::{
             core_logic::transfomer::Transformer,
             recon_tasks_aggregator_service::ReconTaskAggregationService,
         },
-        web_api::handlers::{create_task_details, get_task_details},
+        web_api::handlers::{
+            attach_comparison_file_to_task, attach_primary_file_to_task, create_task_details,
+            get_task_details,
+        },
     },
 };
 
@@ -48,6 +51,8 @@ pub async fn run_async() -> Result<(), std::io::Error> {
             .app_data(Data::new(service)) // add shared state
             .service(get_task_details)
             .service(create_task_details)
+            .service(attach_primary_file_to_task)
+            .service(attach_comparison_file_to_task)
     })
     .bind(app_listen_url)?
     .run()

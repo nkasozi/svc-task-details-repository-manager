@@ -181,8 +181,8 @@ fn get_dummy_recon_file_metadata() -> ReconFileMetaData {
 fn get_dummy_recon_task_details() -> ReconTaskDetails {
     ReconTaskDetails {
         id: String::from("task-1234"),
-        primary_file_id: String::from("src-file-1234"),
-        comparison_file_id: String::from("cmp-file-1234"),
+        primary_file_id: Some(String::from("src-file-1234")),
+        comparison_file_id: Some(String::from("cmp-file-1234")),
         is_done: false,
         has_begun: false,
         comparison_pairs: vec![ComparisonPair {
@@ -208,8 +208,8 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
         task_id: String::from("task-1234"),
         task_details: ReconTaskDetails {
             id: String::from("task-1234"),
-            primary_file_id: String::from("src-file-1234"),
-            comparison_file_id: String::from("cmp-file-1234"),
+            primary_file_id: Some(String::from("src-file-1234")),
+            comparison_file_id: Some(String::from("cmp-file-1234")),
             is_done: false,
             has_begun: true,
             comparison_pairs: vec![new_same_column_index_comparison_pair(0)],
@@ -219,7 +219,7 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
                 last_acknowledged_id: Option::None,
             },
         },
-        primary_file_metadata: ReconFileMetaData {
+        primary_file_metadata: Some(ReconFileMetaData {
             id: String::from("src-file-1234"),
             file_name: String::from("src-file-1234"),
             row_count: 1000,
@@ -231,8 +231,8 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
                 topic_id: String::from("test-topic"),
                 last_acknowledged_id: Option::None,
             },
-        },
-        comparison_file_metadata: ReconFileMetaData {
+        }),
+        comparison_file_metadata: Some(ReconFileMetaData {
             id: String::from("cmp-file-1234"),
             file_name: String::from("cmp-file-1234"),
             row_count: 1000,
@@ -244,7 +244,7 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
                 topic_id: String::from("test-topic"),
                 last_acknowledged_id: Option::None,
             },
-        },
+        }),
     }
 }
 

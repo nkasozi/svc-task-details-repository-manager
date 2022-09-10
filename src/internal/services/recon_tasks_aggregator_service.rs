@@ -68,16 +68,24 @@ impl ReconTaskAggregationServiceInterface for ReconTaskAggregationService {
             .await?;
 
         //fetch src file from repository
-        let src_file_metadata = self
-            .recon_file_details_repo
-            .get_recon_file_details(&&task_details.primary_file_id.clone())
-            .await?;
+        let src_file_metadata  = match task_details.primary_file_id.clone() {
+            Some(primary_file_id) => {
+                let primary_file_metadata = self.recon_file_details_repo.get_recon_file_details(&primary_file_id).await?;
+                Some(primary_file_metadata)
+            },
+            None => None
+        };
 
         //fetch cmp file from repository
-        let cmp_file_metadata = self
-            .recon_file_details_repo
-            .get_recon_file_details(&task_details.comparison_file_id.clone())
-            .await?;
+        let cmp_file_metadata = match task_details.comparison_file_id.clone() {
+            Some(comparison_file_id) => {
+                let comparison_file_metadata = self.recon_file_details_repo.get_recon_file_details(&comparison_file_id).await?;
+                Some(comparison_file_metadata)
+            },
+            None => None
+        };
+
+
 
         //convert details to view model
         let task_details_response: ReconTaskResponseDetails = self
@@ -104,7 +112,7 @@ impl ReconTaskAggregationServiceInterface for ReconTaskAggregationService {
         //retrieve saved task details
         let recon_task_details = self.get_recon_task(&request.task_id.clone()).await?;
         let mut recon_task = recon_task_details.task_details;
-        recon_task.primary_file_id = primary_file_id.clone();
+        recon_task.primary_file_id = Some(primary_file_id.clone());
 
         //update the task
         let _ = self
@@ -134,7 +142,7 @@ impl ReconTaskAggregationServiceInterface for ReconTaskAggregationService {
         //retrieve saved task details
         let recon_task_details = self.get_recon_task(&request.task_id.clone()).await?;
         let mut recon_task = recon_task_details.task_details;
-        recon_task.comparison_file_id = comparison_file_id.clone();
+        recon_task.comparison_file_id = Some(comparison_file_id.clone());
 
         //update the task
         let _ = self

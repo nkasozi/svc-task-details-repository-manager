@@ -67,7 +67,7 @@ impl ReconFileDetailsRepositoryInterface for ReconFileDetailsRepositoryManager {
         file_details: &ReconFileMetaData,
     ) -> Result<ReconFileMetaData, AppError> {
         //delete existing task task_details
-        _ = self.delete_recon_file_details(&file_details.id);
+        let _ = self.delete_recon_file_details(&file_details.id);
 
         //save new details
         let id = self.create_recon_file_details(file_details).await?;
