@@ -27,7 +27,7 @@ async fn given_valid_create_recon_task_request_calls_correct_dependencies_return
     let (mock_recon_task_details_repo, mock_recon_file_details_repo, mock_transformer) =
         setup_dependencies();
 
-    let service = ReconTaskAggregationService {
+    let mut service = ReconTaskAggregationService {
         recon_task_details_repo: mock_recon_task_details_repo,
         recon_file_details_repo: mock_recon_file_details_repo,
         transformer: mock_transformer,
@@ -51,7 +51,7 @@ async fn given_that_invalid_create_recon_task_request_supplied_returns_error() {
     let (mock_recon_task_details_repo, mock_recon_file_details_repo, mock_transformer) =
         setup_dependencies();
 
-    let service = ReconTaskAggregationService {
+    let mut service = ReconTaskAggregationService {
         recon_task_details_repo: mock_recon_task_details_repo,
         recon_file_details_repo: mock_recon_file_details_repo,
         transformer: mock_transformer,
@@ -82,7 +82,7 @@ async fn given_that_errors_occurs_when_handling_create_recon_task_request_return
             ))
         });
 
-    let service = ReconTaskAggregationService {
+    let mut service = ReconTaskAggregationService {
         recon_task_details_repo: mock_recon_task_details_repo,
         recon_file_details_repo: mock_recon_file_details_repo,
         transformer: mock_transformer,

@@ -15,19 +15,19 @@ use crate::internal::{
 #[async_trait]
 pub trait ReconTaskAggregationServiceInterface {
     async fn create_recon_task(
-        &self,
+        &mut self,
         request: &CreateReconTaskRequest,
     ) -> Result<ReconTaskResponseDetails, AppError>;
 
-    async fn get_recon_task(&self, task_id: &String) -> Result<ReconTaskResponseDetails, AppError>;
+    async fn get_recon_task(&mut self, task_id: &String) -> Result<ReconTaskResponseDetails, AppError>;
 
     async fn attach_primary_file_to_task(
-        &self,
+        &mut self,
         request: &AttachPrimaryFileRequest,
     ) -> Result<FileResponseSummary, AppError>;
 
     async fn attach_comparison_file_to_task(
-        &self,
+        &mut self,
         request: &AttachComparisonFileRequest,
     ) -> Result<FileResponseSummary, AppError>;
 }

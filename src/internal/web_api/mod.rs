@@ -4,3 +4,4 @@ pub mod server;
 #[cfg(test)]
 #[path = "./handlers_tests.rs"]
 mod handlers_tests;
+mod utils;

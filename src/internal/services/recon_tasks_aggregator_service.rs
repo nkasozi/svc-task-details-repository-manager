@@ -26,7 +26,7 @@ pub struct ReconTaskAggregationService {
 #[async_trait]
 impl ReconTaskAggregationServiceInterface for ReconTaskAggregationService {
     async fn create_recon_task(
-        &self,
+        &mut self,
         request: &CreateReconTaskRequest,
     ) -> Result<ReconTaskResponseDetails, AppError> {
         //validate request
@@ -52,7 +52,7 @@ impl ReconTaskAggregationServiceInterface for ReconTaskAggregationService {
         return self.get_recon_task(&task_id).await;
     }
 
-    async fn get_recon_task(&self, task_id: &String) -> Result<ReconTaskResponseDetails, AppError> {
+    async fn get_recon_task(&mut self, task_id: &String) -> Result<ReconTaskResponseDetails, AppError> {
         //validate request
         if task_id.is_empty() {
             return Err(AppError::new(
@@ -97,7 +97,7 @@ impl ReconTaskAggregationServiceInterface for ReconTaskAggregationService {
     }
 
     async fn attach_primary_file_to_task(
-        &self,
+        &mut self,
         request: &AttachPrimaryFileRequest,
     ) -> Result<FileResponseSummary, AppError> {
         //transform into primary file details
@@ -127,7 +127,7 @@ impl ReconTaskAggregationServiceInterface for ReconTaskAggregationService {
     }
 
     async fn attach_comparison_file_to_task(
-        &self,
+        &mut self,
         request: &AttachComparisonFileRequest,
     ) -> Result<FileResponseSummary, AppError> {
         //transform into primary file details
