@@ -1,3 +1,4 @@
+use crate::external::dapr;
 use crate::external::repositories::recon_file_details_repo::ReconFileDetailsRepositoryManager;
 use crate::external::repositories::recon_task_details_repo::ReconTaskDetailsRepositoryManager;
 use crate::internal::interfaces::recon_tasks_aggregator::ReconTaskAggregationServiceInterface;
@@ -22,20 +23,23 @@ pub struct AppSettings {
 
 pub async fn setup_service() -> Result<Box<dyn ReconTaskAggregationServiceInterface>, std::io::Error> {
     let app_settings = read_app_settings();
-
-    let recon_repo = ReconTaskDetailsRepositoryManager::new(
-        app_settings.dapr_grpc_server_address.clone(),
+    let dapr_client = dapr::dapr_client::connect_to_dapr(&app_settings.dapr_grpc_server_address.clone()).await?;
+    let dapr_client2 = dapr::dapr_client::connect_to_dapr(&app_settings.dapr_grpc_server_address.clone()).await?;
+    let recon_tasks_repo = ReconTaskDetailsRepositoryManager::new(
         app_settings.dapr_state_store_name.clone(),
-    ).await?;
+        dapr_client,
+    );
+
+    let recon_files_repo = ReconFileDetailsRepositoryManager::new(
+        app_settings.dapr_state_store_name.clone(),
+        dapr_client2,
+    );
 
     let service: Box<dyn ReconTaskAggregationServiceInterface> =
         Box::new(ReconTaskAggregationService {
-            recon_task_details_repo: Box::new(recon_repo),
+            recon_task_details_repo: Box::new(recon_tasks_repo),
 
-            recon_file_details_repo: Box::new(ReconFileDetailsRepositoryManager {
-                connection_url: app_settings.dapr_grpc_server_address.clone(),
-                store_name: app_settings.dapr_state_store_name.clone(),
-            }),
+            recon_file_details_repo: Box::new(recon_files_repo),
 
             transformer: Box::new(Transformer {}),
         });
