@@ -4,6 +4,7 @@ use crate::external::repositories::recon_task_details_repo::ReconTaskDetailsRepo
 use crate::internal::interfaces::recon_tasks_aggregator::ReconTaskAggregationServiceInterface;
 use crate::internal::services::core_logic::transfomer::Transformer;
 use crate::internal::services::recon_tasks_aggregator_service::ReconTaskAggregationService;
+use crate::internal::shared_reconciler_rust_libraries::models::entities::app_errors::AppError;
 
 const DEFAULT_DAPR_CONNECTION_URL: &'static str = "http://localhost:5005";
 const DEFAULT_DAPR_STORE_NAME: &'static str = "statestore";
@@ -21,7 +22,7 @@ pub struct AppSettings {
     pub dapr_grpc_server_address: String,
 }
 
-pub async fn setup_service() -> Result<Box<dyn ReconTaskAggregationServiceInterface>, std::io::Error> {
+pub async fn setup_service() -> Result<Box<dyn ReconTaskAggregationServiceInterface>, AppError> {
     let app_settings = read_app_settings();
     let dapr_client = dapr::dapr_client::connect_to_dapr(&app_settings.dapr_grpc_server_address.clone()).await?;
     let dapr_client2 = dapr::dapr_client::connect_to_dapr(&app_settings.dapr_grpc_server_address.clone()).await?;
