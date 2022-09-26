@@ -38,7 +38,7 @@ pub struct AttachPrimaryFileRequest {
     pub primary_file_headers: Vec<String>,
 
     #[validate(length(min = 1, message = "please supply the primary_file_delimiters"))]
-    pub primary_file_delimiters: Vec<String>,
+    pub primary_file_delimiters: Vec<char>,
 }
 
 #[derive(Serialize, Deserialize, Validate, Debug)]
@@ -59,5 +59,5 @@ pub struct AttachComparisonFileRequest {
     pub comparison_file_row_count: u64,
 
     #[validate(length(min = 1, message = "please supply the comparison_file_delimiters"))]
-    pub comparison_file_delimiters: Vec<String>,
+    pub comparison_file_delimiters: Vec<char>,
 }

@@ -11,8 +11,8 @@ use crate::internal::{
             app_errors::{AppError, AppErrorKind},
             file_chunk_queue::FileChunkQueue,
             recon_tasks_models::{
-                ComparisonPair, ReconFileMetaData, ReconFileType, ReconTaskDetails,
-                ReconciliationConfigs,
+                ComparisonPair, ReconciliationConfigs, ReconFileMetaData, ReconFileType,
+                ReconTaskDetails,
             },
         },
         view_models::recon_task_response_details::ReconTaskResponseDetails,
@@ -72,7 +72,7 @@ async fn given_that_errors_occurs_when_handling_create_recon_task_request_return
     //setup
     let (_, mock_recon_file_details_repo, mock_transformer) = setup_dependencies();
 
-    let mut mock_recon_task_details_repo  = Box::new(MockReconTaskDetailsRepositoryInterface::new());
+    let mut mock_recon_task_details_repo = Box::new(MockReconTaskDetailsRepositoryInterface::new());
     mock_recon_task_details_repo
         .expect_create_task_details()
         .returning(|_y| {
@@ -173,7 +173,7 @@ fn get_dummy_recon_file_metadata() -> ReconFileMetaData {
         file_hash: String::from("src-file-1234"),
         queue_info: FileChunkQueue {
             topic_id: String::from("test-topic"),
-            last_acknowledged_id: Option::None,
+            last_acknowledged_id: None,
         },
     }
 }
@@ -198,7 +198,7 @@ fn get_dummy_recon_task_details() -> ReconTaskDetails {
         },
         recon_results_queue_info: FileChunkQueue {
             topic_id: String::from("test-topic"),
-            last_acknowledged_id: Option::None,
+            last_acknowledged_id: None,
         },
     }
 }
@@ -216,7 +216,7 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
             recon_config: default_recon_configs(),
             recon_results_queue_info: FileChunkQueue {
                 topic_id: String::from("test-topic"),
-                last_acknowledged_id: Option::None,
+                last_acknowledged_id: None,
             },
         },
         primary_file_metadata: Some(ReconFileMetaData {
@@ -229,20 +229,20 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
             file_hash: String::from("src-file-1234"),
             queue_info: FileChunkQueue {
                 topic_id: String::from("test-topic"),
-                last_acknowledged_id: Option::None,
+                last_acknowledged_id: None,
             },
         }),
         comparison_file_metadata: Some(ReconFileMetaData {
             id: String::from("cmp-file-1234"),
             file_name: String::from("cmp-file-1234"),
             row_count: 1000,
-            column_delimiters: vec![String::from(",")],
+            column_delimiters: vec![','],
             recon_file_type: ReconFileType::ComparisonFile,
             column_headers: vec![String::from("header1"), String::from("header2")],
             file_hash: String::from("cmp-file-1234"),
             queue_info: FileChunkQueue {
                 topic_id: String::from("test-topic"),
-                last_acknowledged_id: Option::None,
+                last_acknowledged_id: None,
             },
         }),
     }
