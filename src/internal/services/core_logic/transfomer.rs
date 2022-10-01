@@ -46,7 +46,6 @@ impl TransformerInterface for Transformer {
             file_hash: request.primary_file_hash.clone(),
             column_delimiters: request.primary_file_delimiters.clone(),
             column_headers: request.primary_file_headers.clone(),
-            queue_info: self.generate_queue_topic(PRIMARY_FILE_QUEUE_PREFIX),
         };
     }
 
@@ -62,7 +61,6 @@ impl TransformerInterface for Transformer {
             file_hash: request.comparison_file_hash.clone(),
             column_delimiters: request.comparison_file_delimiters.clone(),
             column_headers: request.comparison_file_headers.clone(),
-            queue_info: self.generate_queue_topic(COMPARISON_FILE_QUEUE_PREFIX),
         };
     }
 
@@ -76,6 +74,8 @@ impl TransformerInterface for Transformer {
             comparison_pairs: request.comparison_pairs.clone(),
             recon_config: request.recon_configurations.clone(),
             recon_results_queue_info: self.generate_queue_topic(RECON_RESULTS_QUEUE_PREFIX),
+            primary_file_chunks_queue_info: self.generate_queue_topic(PRIMARY_FILE_QUEUE_PREFIX),
+            comparison_file_chunks_queue_info: self.generate_queue_topic(COMPARISON_FILE_QUEUE_PREFIX),
         };
     }
 }

@@ -1,21 +1,21 @@
 use actix_web::{
+    App,
     test::{self, TestRequest},
     web::Data,
-    App,
 };
 
 use crate::internal::{
     interfaces::recon_tasks_aggregator::MockReconTaskAggregationServiceInterface,
     interfaces::recon_tasks_aggregator::ReconTaskAggregationServiceInterface,
+    shared_reconciler_rust_libraries::models::{
+        entities::recon_tasks_models::{
+            ReconciliationConfigs, ReconFileMetaData, ReconFileType, ReconTaskDetails,
+        },
+        view_models::recon_task_response_details::ReconTaskResponseDetails,
+    },
     shared_reconciler_rust_libraries::models::entities::{
         app_errors::{AppError, AppErrorKind},
         file_chunk_queue::FileChunkQueue,
-    },
-    shared_reconciler_rust_libraries::models::{
-        entities::recon_tasks_models::{
-            ReconFileMetaData, ReconFileType, ReconTaskDetails, ReconciliationConfigs,
-        },
-        view_models::recon_task_response_details::ReconTaskResponseDetails,
     },
     web_api::handlers::get_task_details,
 };
@@ -38,7 +38,7 @@ async fn test_get_task_details_calls_correct_dependecies_and_returns_success() {
             .app_data(Data::new(service)) // add shared state
             .service(get_task_details)
     })())
-    .await;
+        .await;
 
     let resp = TestRequest::get()
         .uri(&format!("/recon-tasks/123456"))
@@ -71,7 +71,7 @@ async fn test_get_task_details_when_invalid_request_returns_bad_request() {
             .app_data(Data::new(service)) // add shared state
             .service(get_task_details)
     })())
-    .await;
+        .await;
 
     let resp = TestRequest::get()
         .uri(&format!("/recon-tasks/123456"))
@@ -104,7 +104,7 @@ async fn test_upload_file_chunk_when_service_returns_error_returns_internal_erro
             .app_data(Data::new(service)) // add shared state
             .service(get_task_details)
     })())
-    .await;
+        .await;
 
     let resp = TestRequest::get()
         .uri(&format!("/recon-tasks/123456"))
@@ -132,7 +132,15 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
             },
             recon_results_queue_info: FileChunkQueue {
                 topic_id: String::from("test-topic"),
-                last_acknowledged_id: Option::None,
+                last_acknowledged_id: None,
+            },
+            primary_file_chunks_queue_info: FileChunkQueue {
+                topic_id: String::from("test-topic"),
+                last_acknowledged_id: None,
+            },
+            comparison_file_chunks_queue_info: FileChunkQueue {
+                topic_id: String::from("test-topic"),
+                last_acknowledged_id: None,
             },
         },
         primary_file_metadata: Some(ReconFileMetaData {
@@ -143,10 +151,6 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
             recon_file_type: ReconFileType::PrimaryFile,
             column_headers: vec![],
             file_hash: String::from("src-file-1234"),
-            queue_info: FileChunkQueue {
-                topic_id: String::from("test-topic"),
-                last_acknowledged_id: Option::None,
-            },
         }),
         comparison_file_metadata: Some(ReconFileMetaData {
             id: String::from("cmp-file-1234"),
@@ -156,10 +160,6 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
             recon_file_type: ReconFileType::ComparisonFile,
             column_headers: vec![],
             file_hash: String::from("cmp-file-1234"),
-            queue_info: FileChunkQueue {
-                topic_id: String::from("test-topic"),
-                last_acknowledged_id: Option::None,
-            },
         }),
     }
 }
