@@ -65,17 +65,18 @@ impl TransformerInterface for Transformer {
     }
 
     fn get_recon_task_details(&self, request: &CreateReconTaskRequest) -> ReconTaskDetails {
+        let task_id = self.generate_uuid(RECON_TASKS_STORE_PREFIX);
         return ReconTaskDetails {
-            id: self.generate_uuid(RECON_TASKS_STORE_PREFIX),
+            id: task_id.clone(),
             primary_file_id: None,
             comparison_file_id: None,
             is_done: false,
             has_begun: true,
             comparison_pairs: request.comparison_pairs.clone(),
             recon_config: request.recon_configurations.clone(),
-            recon_results_queue_info: self.generate_queue_topic(RECON_RESULTS_QUEUE_PREFIX),
-            primary_file_chunks_queue_info: self.generate_queue_topic(PRIMARY_FILE_QUEUE_PREFIX),
-            comparison_file_chunks_queue_info: self.generate_queue_topic(COMPARISON_FILE_QUEUE_PREFIX),
+            recon_results_queue_info: self.generate_queue_topic(RECON_RESULTS_QUEUE_PREFIX, &task_id),
+            primary_file_chunks_queue_info: self.generate_queue_topic(PRIMARY_FILE_QUEUE_PREFIX, &task_id),
+            comparison_file_chunks_queue_info: self.generate_queue_topic(COMPARISON_FILE_QUEUE_PREFIX, &task_id),
         };
     }
 }
@@ -87,8 +88,8 @@ impl Transformer {
         return full_id;
     }
 
-    fn generate_queue_topic(&self, prefix: &str) -> FileChunkQueue {
-        let uuid = self.generate_uuid(prefix);
+    fn generate_queue_topic(&self, prefix: &str, task_id: &String) -> FileChunkQueue {
+        let uuid = String::from(format!("{}-{}", prefix, task_id));
         FileChunkQueue {
             topic_id: uuid,
             last_acknowledged_id: Option::None,

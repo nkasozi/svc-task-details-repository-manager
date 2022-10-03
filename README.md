@@ -16,6 +16,7 @@ A Dapr MicroService that provides CRUD functionality for ReconTasks.
 Clone the repo
 
 ### Prerequisites
+
 ```
 - Dapr
 - Rust
@@ -55,28 +56,27 @@ Sample Create ReconTasks Request
 curl --location --request POST 'http://127.0.0.1:8080/task-details' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "user_id": "test-user-id",
-    "source_file_name": "test-src-file",
-    "source_file_hash": "test-src-file-hash",
-    "source_file_row_count": 25,
-    "source_file_column_count": 10,
-    "comparison_file_name": "test-cmp-file",
-    "comparison_file_hash": "test-cmp-file-hash",
-    "comparison_file_column_count": 30,
-    "comparison_file_row_count": 10,
+    "user_id": "nkasozi@gmail.com",
     "recon_configurations": {
         "should_check_for_duplicate_records_in_comparison_file": false,
         "should_reconciliation_be_case_sensitive": false,
         "should_ignore_white_space": true,
         "should_do_reverse_reconciliation": false
     },
-    "comparison_pairs": []
+    "comparison_pairs": [
+        {
+            "primary_file_column_index": 0,
+            "comparison_file_column_index": 0,
+            "is_row_identifier": true
+        }
+    ]
 }'
 ```
 
-GET previously created task 
+GET previously created task
+
 ```
-curl --location --request GET 'http://127.0.0.1:8080/task-details/RECON-TASK-05aecf16-cf0a-40f6-8af7-fd6ef7e89d70'
+curl --location --request GET 'http://127.0.0.1:8080/recon-task/RECON-TASK-05aecf16-cf0a-40f6-8af7-fd6ef7e89d70'
 ```
 
 ## Usage <a name = "usage"></a>
