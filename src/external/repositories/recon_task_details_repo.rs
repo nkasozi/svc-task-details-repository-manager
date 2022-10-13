@@ -9,10 +9,11 @@ use crate::internal::{
         recon_tasks_models::ReconTaskDetails,
     },
 };
+use crate::internal::shared_reconciler_rust_libraries::common::utils::app_error;
 
 pub struct ReconTaskDetailsRepositoryManager {
     pub store_name: String,
-    pub client: Client<DaprClient<TonicChannel>>,
+    pub connection_string: String,
 }
 
 #[async_trait]
@@ -28,10 +29,10 @@ impl ReconTaskDetailsRepositoryInterface for ReconTaskDetailsRepositoryManager {
 
                 match retrieval_result {
                     Ok(unmarshalled_task_details) => Ok(unmarshalled_task_details),
-                    Err(e) => Err(AppError::new(AppErrorKind::NotFound, e.to_string())),
+                    Err(e) => app_error(AppErrorKind::ResponseUnmarshalError, Box::new(e)),
                 }
             }
-            Err(e) => Err(AppError::new(AppErrorKind::NotFound, e.to_string())),
+            Err(e) => app_error(AppErrorKind::NotFound, Box::new(e))
         };
     }
 
@@ -49,7 +50,7 @@ impl ReconTaskDetailsRepositoryInterface for ReconTaskDetailsRepositoryManager {
 
         return match save_result {
             Ok(_s) => Ok(key.clone()),
-            Err(e) => Err(AppError::new(AppErrorKind::InternalError, e.to_string())),
+            Err(e) => app_error(AppErrorKind::InternalError, Box::new(e)),
         };
     }
 
@@ -68,8 +69,7 @@ impl ReconTaskDetailsRepositoryInterface for ReconTaskDetailsRepositoryManager {
     }
 
     async fn delete_task_details(&mut self, task_details_id: &String) -> Result<bool, AppError> {
-
-
+        
         // delete a value from the state store
         let delete_result = self.client
             .delete_state(self.store_name.clone(), String::from(task_details_id), None)
@@ -77,17 +77,16 @@ impl ReconTaskDetailsRepositoryInterface for ReconTaskDetailsRepositoryManager {
 
         return match delete_result {
             Ok(_s) => Ok(true),
-            Err(e) => Err(AppError::new(AppErrorKind::InternalError, e.to_string())),
+            Err(e) => app_error(AppErrorKind::InternalError, Box::new(e)),
         };
     }
 }
 
 impl ReconTaskDetailsRepositoryManager {
-    pub(crate) fn new(store_name: String, client: Client<DaprClient<TonicChannel>>) -> Self {
-        //handle the connection result
+    pub(crate) fn new(store_name: String, connection_string: String) -> Self {
         return ReconTaskDetailsRepositoryManager {
             store_name,
-            client,
+            connection_string,
         };
     }
 }

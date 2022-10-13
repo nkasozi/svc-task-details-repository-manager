@@ -21,7 +21,7 @@ use crate::internal::{
 };
 
 #[actix_web::test]
-async fn test_get_task_details_calls_correct_dependecies_and_returns_success() {
+async fn test_get_task_details_calls_correct_dependencies_and_returns_success() {
     let mut app = test::init_service((move || {
         // Create some global state prior to running the handler thread
         let mut mock_recon_task_aggregation_service =

@@ -1,8 +1,11 @@
+use std::sync::Mutex;
+
 use actix_web::{
     get, HttpResponse,
     post,
     web::{self, Path},
 };
+use actix_web::web::Data;
 
 use crate::internal::{interfaces::recon_tasks_aggregator::ReconTaskAggregationServiceInterface, models::view_models::requests::{
     AttachComparisonFileRequest, AttachPrimaryFileRequest, CreateReconTaskRequest,
@@ -14,14 +17,10 @@ use crate::internal::web_api::utils::setup_service;
 #[get("/recon-tasks/{task_id}")]
 pub(crate) async fn get_task_details(
     get_task_details_request: Path<GetTaskDetailsRequest>,
+    service: Data<Mutex<Box<dyn ReconTaskAggregationServiceInterface>>>,
 ) -> HttpResponse {
-    let mut service: Box<dyn ReconTaskAggregationServiceInterface> = match setup_service().await {
-        Ok(s) => s,
-        Err(err) => return internal_server_error(err),
-    };
-
     let task_id = &get_task_details_request.task_id;
-    let response = service.get_recon_task(task_id).await;
+    let response = service.lock().unwrap().get_recon_task(task_id).await;
     return ok_or_error(response);
 }
 

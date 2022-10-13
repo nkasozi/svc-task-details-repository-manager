@@ -225,7 +225,7 @@ fn get_dummy_recon_task_response_details() -> ReconTaskResponseDetails {
             primary_file_chunks_queue_info: FileChunkQueue {
                 topic_id: String::from("test-topic"),
                 last_acknowledged_id: None,
-            },,
+            },
             comparison_file_chunks_queue_info: FileChunkQueue {
                 topic_id: String::from("test-topic"),
                 last_acknowledged_id: None,
